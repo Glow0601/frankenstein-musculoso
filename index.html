@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tracker de entrenamiento, progreso y nutrición para Frankenstein Musculoso.">
+    <meta name="theme-color" content="#0b0b0f">
+
+    <title>Frankenstein Musculoso</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #0b0b0f;
+            color: white;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 25px;
+            border-bottom: 1px solid #252530;
+            background: #101016;
+        }
+
+        header h1 {
+            font-size: 28px;
+        }
+
+        header p {
+            margin-top: 6px;
+            color: #9999a8;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: auto;
+            padding: 25px;
+        }
+
+        .section-title {
+            margin-bottom: 20px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #14141c;
+            border: 1px solid #282832;
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .card h3 {
+            font-size: 14px;
+            color: #9999a8;
+            margin-bottom: 10px;
+        }
+
+        .card strong {
+            font-size: 26px;
+        }
+
+        .training {
+            background: #14141c;
+            border: 1px solid #282832;
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .exercise {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+    gap: 10px;
+    margin-top: 15px;
+    align-items: center;
+}
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #30303b;
+            background: #0d0d12;
+            color: white;
+            font: inherit;
+        }
+
+        input::placeholder {
+            color: #7b7b8d;
+        }
+
+        button {
+            margin-top: 20px;
+            background: #6d28d9;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s ease;
+        }
+
+button:hover {
+    background: #7c3aed;
+}
+
+.app-nav {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.app-nav button {
+    width: auto;
+    margin-top: 0;
+    padding: 8px 14px;
+    font-size: 13px;
+    border-radius: 8px;
+}
+        @media (max-width: 800px) {
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .exercise {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+
+    <h1>🧟‍♂️ Frankenstein Musculoso</h1>
+
+    <p>
+        Entrenamiento · Progresión · Alimentación · Evolución
+    </p>
+
+
+   <nav class="app-nav">
+
+    <button onclick="mostrarPagina('dashboard')">
+        🏠 Inicio
+    </button>
+    
+    <button onclick="mostrarPagina('entrenamiento')">🏋️ Entrenamiento</button>
+
+    <button onclick="mostrarPagina('historial')">
+        📚 Historial
+    </button>
+<button onclick="mostrarPagina('progreso')">
+    📈 Progreso
+</button>
+
+</nav>
+
+</header>
+
+    <main>
+
+        <!-- PÁGINA DE HISTORIAL -->
+<div id="progresoPage" style="display: none;">
+
+    <h2 class="section-title">
+        📈 Progreso
+    </h2>
+
+    <div id="progresoContainer">
+
+        <p style="color: #9999a8;">
+            Todavía no hay suficientes datos para mostrar tu progreso.
+        </p>
+
+    </div>
+
+</div>
+
+<div id="entrenamientoPage" style="display: none;">
+
+    <h2 class="section-title">
+        🏋️ Entrenamiento
+    </h2>
+<section class="training">
+
+    <h3>🔥 Rutina Cindy</h3>
+
+    <p style="
+        color: #9999a8;
+        margin-top: 8px;
+    ">
+        Sentadillas · Dominadas supina · Lagartijas
+    </p>
+
+    <button onclick="seleccionarCindy()">
+        Seleccionar Cindy
+    </button>
+
+</section>
+
+<section class="training" style="margin-top: 20px;">
+
+    <h3>⚡ Rutina Libre</h3>
+
+    <p style="
+        color: #9999a8;
+        margin-top: 8px;
+    ">
+        Crea tu entrenamiento con los ejercicios que quieras.
+    </p>
+
+    <button onclick="seleccionarRutinaLibre()">
+        Crear rutina libre
+    </button>
+
+</section>
+
+<div
+    id="exerciseContainer"
+    style="margin-top: 20px;"
+></div>
+<button onclick="registrarEntrenamiento()">
+    🧟‍♂️ Registrar entrenamiento
+</button>
+</div>
+
+<div id="historialPage" style="display: none;">
+
+    <h2 class="section-title">
+        📚 Historial de entrenamientos
+    </h2>
+
+    <div id="historialContainer">
+
+        <p style="color: #9999a8;">
+            Todavía no hay entrenamientos registrados.
+        </p>
+
+    </div>
+
+</div>
+
+<div id="dashboardPage">
+
+        <h2 class="section-title">🏠 Inicio</h2>
+
+
+<section class="card" style="margin-bottom: 20px;">
+
+    <h3>🏆 Récords</h3>
+
+    <div
+        id="listaRecords"
+        style="
+            margin-top: 15px;
+        "
+    >
+        <p style="
+            color: #9999a8;
+        ">
+            Todavía no tienes récords registrados.
+        </p>
+    </div>
+
+</section>
+
+<section class="card" style="margin-bottom: 20px;">
+
+    <h3>🎯 Objetivos</h3>
+
+    <section class="card" style="margin-bottom: 20px;">
+
+    <h3>🏋️ Último entrenamiento</h3>
+
+<section class="card" style="
+    margin-bottom: 20px;
+    border-left: 3px solid #6d28d9;
+">
+
+    <h3>🧟‍♂️ Frankenstein observa</h3>
+
+    <div id="frankensteinObserva"></div>
+
+</section>
+
+    <div id="ultimoEntrenamiento">
+
+        <p style="color: #9999a8;">
+            Todavía no has registrado ningún entrenamiento.
+        </p>
+
+    </div>
+
+</section>
+
+    <div style="
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-top: 15px;
+    ">
+
+        <div style="
+            background: #0d0d12;
+            border: 1px solid #282832;
+            border-radius: 10px;
+            padding: 15px;
+        ">
+
+            <span style="font-size: 20px;">
+                💪
+            </span>
+
+            <strong style="
+                display: block;
+                margin-top: 8px;
+                font-size: 16px;
+            ">
+                Fuerza
+            </strong>
+
+            <span style="
+                display: block;
+                margin-top: 4px;
+                color: #9999a8;
+                font-size: 12px;
+            ">
+                Progresar
+            </span>
+
+        </div>
+
+        <div style="
+            background: #0d0d12;
+            border: 1px solid #282832;
+            border-radius: 10px;
+            padding: 15px;
+        ">
+
+            <span style="font-size: 20px;">
+                🔥
+            </span>
+
+            <strong style="
+                display: block;
+                margin-top: 8px;
+                font-size: 16px;
+            ">
+                Consistencia
+            </strong>
+
+            <span style="
+                display: block;
+                margin-top: 4px;
+                color: #9999a8;
+                font-size: 12px;
+            ">
+                Entrenar
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+    </div>
+
+    <div style="
+        margin-top: 18px;
+    ">
+
+        <div style="
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #9999a8;
+            margin-bottom: 6px;
+        ">
+            <span>Progreso al siguiente nivel</span>
+            <span id="xpPorcentaje">0%</span>
+        </div>
+
+        <div style="
+            width: 100%;
+            height: 8px;
+            background: #282832;
+            border-radius: 10px;
+            overflow: hidden;
+        ">
+
+            <div
+    id="xpBarra"
+    style="
+        width: 0%;
+        height: 100%;
+        background: #6d28d9;
+        border-radius: 10px;
+    "
+></div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</div>
+<script>
+
+    // Biblioteca de ejercicios disponibles
+
+    
+    const ejerciciosDisponibles = [
+        "Lagartijas",
+        "Sentadillas",
+        "Fondos",
+        "Dominadas supina",
+        "Dominada neutra",
+        "Rodillas al pecho",
+        "Burpees",
+        "Bicycle Crunch",
+        "Reverse Crunch",
+        "Leg Elevated Crunches"
+    ];
+
+
+    // Rutina Cindy
+
+    function seleccionarCindy() {
+
+        const ejerciciosCindy = [
+            "Sentadillas",
+            "Dominadas supina",
+            "Lagartijas"
+        ];
+
+        mostrarEjercicios(ejerciciosCindy);
+
+    }
+
+
+    // Rutina libre
+
+    function seleccionarRutinaLibre() {
+
+        const container = document.getElementById("exerciseContainer");
+
+        container.innerHTML = `
+
+            <h3>⚡ Rutina Libre</h3>
+
+            <p style="
+                color: #9999a8;
+                margin-top: 5px;
+            ">
+                Agrega los ejercicios que quieras.
+            </p>
+
+            <select
+    id="exerciseSelector"
+    style="margin-top: 15px;"
+    onchange="agregarEjercicio()"
+>
+    <option value="">
+        Selecciona un ejercicio
+    </option>
+
+    ${ejerciciosDisponibles.map(ejercicio => `
+        <option value="${ejercicio}">
+            ${ejercicio}
+        </option>
+    `).join("")}
+
+</select>
+           
+            <div id="selectedExercises" style="
+                margin-top: 20px;
+            "></div>
+
+        `;
+
+    }
+
+
+    // Mostrar ejercicios de una rutina
+
+    function mostrarEjercicios(ejercicios) {
+
+        const container = document.getElementById("exerciseContainer");
+
+        container.innerHTML = `
+
+    <h3>Ejercicios seleccionados</h3>
+
+    ${ejercicios.map(ejercicio => `
+
+        <div class="exercise">
+
+            <strong style="
+                display: flex;
+                align-items: center;
+            ">
+                ${ejercicio}
+            </strong>
+
+            <input
+                type="number"
+                placeholder="Series"
+                min="1"
+            >
+
+            <input
+                type="number"
+                placeholder="Reps"
+                min="1"
+            >
+
+            <input
+                type="number"
+                placeholder="RIR"
+                min="0"
+                max="5"
+            >
+
+        </div>
+
+    `).join("")}
+
+`;
+
+    }
+
+
+    // Agregar ejercicio a rutina libre
+
+    function agregarEjercicio() {
+    const selector =
+        document.getElementById("exerciseSelector");
+
+    const ejercicio = selector.value;
+
+    if (!ejercicio) {
+        return;
+    }
+
+    const container =
+        document.getElementById("selectedExercises");
+
+    const div = document.createElement("div");
+
+    div.className = "exercise";
+
+    div.innerHTML = `
+
+        <strong style="
+            display: flex;
+            align-items: center;
+        ">
+            ${ejercicio}
+        </strong>
+
+       <input
+    type="number"
+    placeholder="Series"
+    min="1"
+>
+
+<input
+    type="number"
+    placeholder="Reps"
+    min="1"
+>
+
+<input
+    type="number"
+    placeholder="RIR"
+    min="0"
+    max="5"
+>
+
+<input
+    type="number"
+    placeholder="Peso (kg)"
+    min="0"
+    step="0.5"
+>
+
+        <button
+            type="button"
+            onclick="this.parentElement.remove()"
+            style="
+                width: auto;
+                margin-top: 0;
+                padding: 8px 12px;
+                background: #3a1820;
+            "
+        >
+            🗑️
+        </button>
+
+    `;
+
+    container.appendChild(div);
+
+    selector.value = "";
+
+}
+
+// Registrar entrenamiento
+
+function registrarEntrenamiento() {
+
+    const container = document.getElementById("exerciseContainer");
+    const ejercicios = container.querySelectorAll(".exercise");
+
+    if (ejercicios.length === 0) {
+        alert("Primero selecciona una rutina.");
+        return;
+    }
+
+    const entrenamiento = {
+    fecha: new Date().toISOString(),
+    rutina: document.getElementById("exerciseSelector")
+    ? "Rutina Libre"
+    : "Cindy",
+    ejercicios: []
+};
+
+    ejercicios.forEach(ejercicio => {
+
+        const nombre = ejercicio.querySelector("strong").textContent.trim();
+        const inputs = ejercicio.querySelectorAll("input");
+
+        const series = inputs[0].value;
+const reps = inputs[1].value;
+const rir = inputs[2].value;
+const peso = inputs[3] ? inputs[3].value : "";
+
+        if (!series || !reps) {
+            return;
+        }
+
+        entrenamiento.ejercicios.push({
+            nombre: nombre,
+            series: Number(series),
+            reps: Number(reps),
+            rir: rir ? Number(rir) : null,
+peso: peso ? Number(peso) : null
+        });
+
+    });
+
+    if (entrenamiento.ejercicios.length === 0) {
+        alert("Completa al menos un ejercicio.");
+        return;
+    }
+
+let historial =
+    JSON.parse(localStorage.getItem("frankensteinEntrenamientos")) || [];
+
+let xp =
+    Number(localStorage.getItem("frankensteinXP")) || 0;
+
+xp += 50;
+
+localStorage.setItem(
+    "frankensteinXP",
+    xp
+);
+
+historial.push(entrenamiento);
+
+    localStorage.setItem(
+        "frankensteinEntrenamientos",
+        JSON.stringify(historial)
+    );
+
+    alert("🧟‍♂️ Entrenamiento registrado correctamente.");
+
+    console.log("Entrenamiento guardado:", entrenamiento);
+}
+
+// Mostrar páginas
+
+function mostrarPagina(pagina) {
+
+    const dashboard = document.getElementById("dashboardPage");
+    const historial = document.getElementById("historialPage");
+    const progreso = document.getElementById("progresoPage");
+    const entrenamiento = document.getElementById("entrenamientoPage");
+
+
+    // Ocultar todas las páginas
+    dashboard.style.display = "none";
+    historial.style.display = "none";
+    progreso.style.display = "none";
+    entrenamiento.style.display = "none";
+
+
+    // Mostrar la página seleccionada
+    if (pagina === "dashboard") {
+    dashboard.style.display = "block";
+    mostrarUltimoEntrenamiento();
+    actualizarRecords();
+    mostrarObservacion();
+}
+    if (pagina === "entrenamiento") {
+    entrenamiento.style.display = "block";
+}
+
+
+    if (pagina === "historial") {
+        historial.style.display = "block";
+        mostrarHistorial();
+    }
+
+    if (pagina === "progreso") {
+        progreso.style.display = "block";
+        mostrarProgreso();
+    }
+    function actualizarGraficaProgreso() {
+
+    const selector =
+        document.getElementById("progresoEjercicioSelector");
+
+    const grafica =
+        document.getElementById("graficaProgreso");
+
+    const titulo =
+        document.getElementById("tituloGrafica");
+
+    if (!selector || !grafica) return;
+
+    const ejercicioSeleccionado = selector.value;
+
+    const entrenamientos =
+        JSON.parse(
+            localStorage.getItem("frankensteinEntrenamientos")
+        ) || [];
+
+    const datos = [];
+
+    entrenamientos.forEach(entrenamiento => {
+
+        entrenamiento.ejercicios.forEach(ejercicio => {
+
+            if (ejercicio.nombre === ejercicioSeleccionado) {
+
+            datos.push({
+    fecha: entrenamiento.fecha,
+    series: ejercicio.series,
+    reps: ejercicio.reps,
+    peso: ejercicio.peso,
+    rir: ejercicio.rir,
+    volumen:
+        ejercicio.series *
+        ejercicio.reps *
+        (ejercicio.peso !== null ? ejercicio.peso : 1)
+});
+
+            }
+
+        });
+
+    });
+
+    titulo.textContent =
+        `📈 Progreso — ${ejercicioSeleccionado}`;
+
+    if (datos.length === 0) {
+    const mejorMarca =
+        Math.max(...datos.map(dato => dato.reps));
+        
+const mejorVolumen =
+    Math.max(...datos.map(dato => dato.volumen));
+
+    const ultimaMarca =
+        datos[datos.length - 1].reps;
+
+    const primeraMarca =
+        datos[0].reps;
+
+    const diferencia =
+        ultimaMarca - primeraMarca;
+        const anteriorMarca =
+    datos.length > 1
+        ? datos[datos.length - 2].reps
+        : null;
+
+const diferenciaAnterior =
+    anteriorMarca !== null
+        ? ultimaMarca - anteriorMarca
+        : 0;
+
+        let estadoProgreso = "";
+
+if (diferencia > 0) {
+    estadoProgreso = "📈 Progreso";
+} else if (diferencia < 0) {
+    estadoProgreso = "📉 Retroceso";
+} else {
+    estadoProgreso = "➖ Mantenimiento";
+}
+
+let recomendacion = "";
+
+const ultimoDato =
+    datos[datos.length - 1];
+
+const datoAnterior =
+    datos.length > 1
+        ? datos[datos.length - 2]
+        : null;
+
+const mismoPeso =
+    datoAnterior &&
+    ultimoDato.peso === datoAnterior.peso;
+    const aumentoPeso =
+    datoAnterior &&
+    ultimoDato.peso !== null &&
+    datoAnterior.peso !== null &&
+    ultimoDato.peso > datoAnterior.peso;
+
+if (datos.length === 1) {
+
+    recomendacion =
+        "Registra más sesiones para analizar tu progresión.";
+
+} else if (diferenciaAnterior > 0 && mismoPeso) {
+
+    recomendacion =
+        `Subiste ${diferenciaAnterior} ${
+            diferenciaAnterior === 1 ? "rep" : "reps"
+        } manteniendo el mismo peso. Próximo objetivo: ${
+            ultimoDato.peso !== null
+                ? `${ultimoDato.peso} kg × ${ultimaMarca + 1}`
+                : `${ultimaMarca + 1} reps`
+        }.`;
+
+} else if (aumentoPeso) {
+
+    recomendacion =
+        `Aumentaste la carga de ${
+            datoAnterior.peso
+        } kg a ${
+            ultimoDato.peso
+        } kg. Mantén este peso y busca consolidar las reps antes de volver a subir.`;
+
+} else if (diferenciaAnterior > 0) {
+
+    recomendacion =
+        `Buen progreso. Subiste ${diferenciaAnterior} ${
+            diferenciaAnterior === 1 ? "rep" : "reps"
+        } respecto a tu sesión anterior.`;
+
+} else if (diferenciaAnterior === 0 && mismoPeso) {
+
+    recomendacion =
+        `Mantuviste ${ultimaMarca} ${
+            ultimaMarca === 1 ? "rep" : "reps"
+        } con el mismo peso. Intenta sumar 1 rep en la próxima sesión.`;
+
+} else if (diferenciaAnterior === 0) {
+
+    recomendacion =
+        "Las reps se mantuvieron, pero hubo un cambio de carga. Consolida esta marca antes de volver a subir.";
+} else if (aumentoPeso) {
+
+    recomendacion =
+        `Las reps bajaron de ${
+            datoAnterior.reps
+        } a ${
+            ultimoDato.reps
+        }, pero aumentaste la carga de ${
+            datoAnterior.peso
+        } kg a ${
+            ultimoDato.peso
+        } kg. Mantén esta carga y consolida las reps.`;
+
+} else {
+
+    recomendacion =
+        `Bajaste de ${
+            datoAnterior.reps
+        } a ${
+            ultimoDato.reps
+        } reps. Prioriza técnica y recuperación antes de buscar aumentar la carga.`;
+}
+        grafica.innerHTML = `
+            <p style="color: #9999a8;">
+                Todavía no hay suficientes datos.
+            </p>
+        `;
+
+        return;
+    }
+
+    const maxReps =
+        Math.max(...datos.map(dato => dato.reps));
+
+    grafica.innerHTML = `
+    <div style="
+    position: relative;
+    width: 100%;
+    height: 260px;
+    min-width: ${Math.max(datos.length * 100, 500)}px;
+">
+
+        <svg
+            viewBox="0 0 1000 260"
+            preserveAspectRatio="none"
+            style="
+                width: 100%;
+                height: 100%;
+                overflow: visible;
+            "
+        >
+
+            <!-- Líneas horizontales -->
+            <line
+                x1="0"
+                y1="50"
+                x2="1000"
+                y2="50"
+                stroke="#282832"
+            />
+
+            <line
+                x1="0"
+                y1="130"
+                x2="1000"
+                y2="130"
+                stroke="#282832"
+            />
+
+            <line
+                x1="0"
+                y1="210"
+                x2="1000"
+                y2="210"
+                stroke="#282832"
+            />
+
+            <!-- Línea de progreso -->
+            <polyline
+                points="
+                    ${datos.map((dato, index) => {
+
+                        const x =
+                            datos.length === 1
+                                ? 500
+                                : (index / (datos.length - 1)) * 1000;
+
+                        const y =
+                            230 -
+                            (dato.reps / maxReps) * 180;
+
+                        return `${x},${y}`;
+
+                    }).join(" ")}
+                "
+                fill="none"
+                stroke="#8b5cf6"
+                stroke-width="5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            />
+
+            <!-- Puntos -->
+            ${datos.map((dato, index) => {
+
+                const x =
+                    datos.length === 1
+                        ? 500
+                        : (index / (datos.length - 1)) * 1000;
+
+                const y =
+                    230 -
+                    (dato.reps / maxReps) * 180;
+
+                return `
+    <circle
+        cx="${x}"
+        cy="${y}"
+        r="7"
+        fill="#8b5cf6"
+    />
+
+    <text
+        x="${x}"
+        y="${y - 14}"
+        text-anchor="middle"
+        fill="white"
+        font-size="14"
+    >
+        ${dato.reps}
+    </text>
+
+    <text
+        x="${x}"
+        y="${y + 25}"
+        text-anchor="middle"
+        fill="#9999a8"
+        font-size="11"
+    >
+        ${dato.peso !== null ? dato.peso + " kg" : "Sin peso"}
+    </text>
+
+    <text
+        x="${x}"
+        y="${y + 40}"
+        text-anchor="middle"
+        fill="#9999a8"
+        font-size="10"
+    >
+        ${dato.rir !== null ? "RIR " + dato.rir : ""}
+    </text>
+
+    <text
+    x="${x}"
+    y="${y + 25}"
+    text-anchor="middle"
+    fill="#9999a8"
+    font-size="11"
+>
+    ${dato.peso !== null ? dato.peso + " kg" : "—"}
+</text>
+
+<text
+    x="${x}"
+    y="${y + 40}"
+    text-anchor="middle"
+    fill="#9999a8"
+    font-size="10"
+>
+    ${dato.rir !== null ? "RIR " + dato.rir : "—"}
+</text>
+
+`;
+
+            }).join("")}
+
+                </svg>
+
+    </div>
+<div style="
+    margin-top: 12px;
+    padding: 15px;
+    background: #0d0d12;
+    border: 1px solid #282832;
+    border-radius: 10px;
+    text-align: center;
+">
+
+    <span style="
+        color: #9999a8;
+        font-size: 12px;
+    ">
+        Último entrenamiento vs. anterior
+
+        <div style="
+    margin-top: 12px;
+    padding: 18px;
+    background: #14141c;
+    border: 1px solid #6d28d9;
+    border-radius: 10px;
+">
+
+    <span style="
+        color: #9999a8;
+        font-size: 12px;
+    ">
+        🧠 Frankenstein Musculoso
+    </span>
+
+    <p style="
+        margin-top: 8px;
+        line-height: 1.5;
+    ">
+        ${recomendacion}
+    </p>
+
+</div>
+    </span>
+
+    <strong style="
+        display: block;
+        margin-top: 6px;
+        font-size: 20px;
+    ">
+        ${
+            datos.length > 1
+                ? `${diferenciaAnterior > 0 ? "+" : ""}${diferenciaAnterior} reps`
+                : "Primer registro"
+        }
+    </strong>
+
+</div>
+    <div style="
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 20px;
+    ">
+
+    <div style="
+    margin-top: 20px;
+    padding: 15px;
+    background: #0d0d12;
+    border: 1px solid #282832;
+    border-radius: 10px;
+    text-align: center;
+">
+
+    <span style="
+        color: #9999a8;
+        font-size: 12px;
+    ">
+        Estado actual
+    </span>
+
+    <strong style="
+        display: block;
+        margin-top: 6px;
+        font-size: 20px;
+    ">
+        ${estadoProgreso}
+    </strong>
+
+</div>
+
+        <div style="
+            background: #0d0d12;
+            border: 1px solid #282832;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        ">
+            <span style="
+                color: #9999a8;
+                font-size: 12px;
+            ">
+                🏆 Mejor marca
+            </span>
+
+            <strong style="
+                display: block;
+                margin-top: 6px;
+                font-size: 22px;
+            ">
+                ${mejorMarca} reps
+            </strong>
+        </div>
+
+        <div style="
+            background: #0d0d12;
+            border: 1px solid #282832;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        ">
+            <span style="
+                color: #9999a8;
+                font-size: 12px;
+            ">
+                🎯 Última marca
+            </span>
+
+            <strong style="
+                display: block;
+                margin-top: 6px;
+                font-size: 22px;
+            ">
+                ${ultimaMarca} reps
+            </strong>
+        </div>
+
+        <div style="
+            background: #0d0d12;
+            border: 1px solid #282832;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        ">
+            <span style="
+                color: #9999a8;
+                font-size: 12px;
+            ">
+                📈 Progreso
+            </span>
+
+            <strong style="
+                display: block;
+                margin-top: 6px;
+                font-size: 22px;
+            ">
+                ${diferencia > 0 ? "+" : ""}${diferencia} reps
+            </strong>
+        </div>
+
+    </div>
+`;
+
+}
+}
+
+
+function mostrarProgreso() {
+
+    const container =
+        document.getElementById("progresoContainer");
+
+    const entrenamientos =
+        JSON.parse(
+            localStorage.getItem("frankensteinEntrenamientos")
+        ) || [];
+
+    if (entrenamientos.length === 0) {
+        container.innerHTML = `
+            <p style="color: #9999a8;">
+                Todavía no hay suficientes datos para mostrar tu progreso.
+            </p>
+        `;
+        return;
+    }
+
+    const ejercicios = [];
+
+    entrenamientos.forEach(entrenamiento => {
+
+        entrenamiento.ejercicios.forEach(ejercicio => {
+
+            if (!ejercicios.includes(ejercicio.nombre)) {
+                ejercicios.push(ejercicio.nombre);
+            }
+
+        });
+
+    });
+
+    container.innerHTML = `
+
+        <div class="card">
+
+            <h3>📊 Selecciona un ejercicio</h3>
+
+            <<select
+    id="progresoEjercicioSelector"
+    onchange="actualizarGraficaProgreso()"
+    style="
+        margin-top: 10px;
+        font-weight: bold;
+    "
+>
+                ${ejercicios.map(ejercicio => `
+                    <option value="${ejercicio}">
+                        ${ejercicio}
+                    </option>
+                `).join("")}
+
+            </select>
+
+        </div>
+
+        <div class="card" style="margin-top: 20px;">
+
+            <h3 id="tituloGrafica">
+                📈 Progreso
+            </h3>
+
+            <div style="
+                height: 300px;
+                display: flex;
+                align-items: flex-end;
+                gap: 20px;
+                padding: 20px 10px;
+                overflow-x: auto;
+            " id="graficaProgreso">
+
+            </div>
+
+        </div>
+
+    `;
+
+    actualizarGraficaProgreso();
+}
+
+function actualizarGraficaProgreso() {
+
+    const selector =
+        document.getElementById("progresoEjercicioSelector");
+
+    const grafica =
+        document.getElementById("graficaProgreso");
+
+    const titulo =
+        document.getElementById("tituloGrafica");
+
+    if (!selector || !grafica) return;
+
+    const ejercicioSeleccionado = selector.value;
+
+    const entrenamientos =
+        JSON.parse(
+            localStorage.getItem("frankensteinEntrenamientos")
+        ) || [];
+
+    const datos = [];
+
+    entrenamientos.forEach(entrenamiento => {
+
+        entrenamiento.ejercicios.forEach(ejercicio => {
+
+            if (ejercicio.nombre === ejercicioSeleccionado) {
+
+                datos.push({
+                    fecha: entrenamiento.fecha,
+                    series: ejercicio.series,
+                    reps: ejercicio.reps,
+                    peso: ejercicio.peso,
+                    rir: ejercicio.rir,
+                    volumen:
+                        ejercicio.series *
+                        ejercicio.reps *
+                        (ejercicio.peso !== null ? ejercicio.peso : 1)
+                });
+
+            }
+
+        });
+
+    });
+
+    titulo.textContent =
+        `📈 Progreso — ${ejercicioSeleccionado}`;
+
+    if (datos.length === 0) {
+
+        grafica.innerHTML = `
+            <p style="color: #9999a8;">
+                Todavía no hay suficientes datos.
+            </p>
+        `;
+
+        return;
+    }
+
+    const maxReps =
+        Math.max(...datos.map(dato => dato.reps));
+
+    const mejorMarca =
+        Math.max(...datos.map(dato => dato.reps));
+
+    const mejorVolumen =
+        Math.max(...datos.map(dato => dato.volumen));
+
+    const ultimaMarca =
+        datos[datos.length - 1].reps;
+
+    const primeraMarca =
+        datos[0].reps;
+
+    const diferencia =
+        ultimaMarca - primeraMarca;
+
+    const anteriorMarca =
+        datos.length > 1
+            ? datos[datos.length - 2].reps
+            : null;
+
+    const diferenciaAnterior =
+        anteriorMarca !== null
+            ? ultimaMarca - anteriorMarca
+            : 0;
+
+    let estadoProgreso = "";
+
+    if (diferencia > 0) {
+        estadoProgreso = "📈 Progreso";
+    } else if (diferencia < 0) {
+        estadoProgreso = "📉 Retroceso";
+    } else {
+        estadoProgreso = "➖ Mantenimiento";
+    }
+
+    const ultimoDato =
+        datos[datos.length - 1];
+
+    const datoAnterior =
+        datos.length > 1
+            ? datos[datos.length - 2]
+            : null;
+
+    const mismoPeso =
+        datoAnterior &&
+        ultimoDato.peso === datoAnterior.peso;
+
+    const aumentoPeso =
+        datoAnterior &&
+        ultimoDato.peso !== null &&
+        datoAnterior.peso !== null &&
+        ultimoDato.peso > datoAnterior.peso;
+
+    let recomendacion = "";
+
+    if (datos.length === 1) {
+
+        recomendacion =
+            "Registra más sesiones para analizar tu progresión.";
+
+    } else if (diferenciaAnterior > 0 && mismoPeso) {
+
+        recomendacion =
+            `Subiste ${diferenciaAnterior} ${
+                diferenciaAnterior === 1 ? "rep" : "reps"
+            } manteniendo el mismo peso. Próximo objetivo: ${
+                ultimoDato.peso !== null
+                    ? `${ultimoDato.peso} kg × ${ultimaMarca + 1}`
+                    : `${ultimaMarca + 1} reps`
+            }.`;
+
+    } else if (aumentoPeso) {
+
+        recomendacion =
+            `Aumentaste la carga de ${
+                datoAnterior.peso
+            } kg a ${
+                ultimoDato.peso
+            } kg. Mantén este peso y busca consolidar las reps antes de volver a subir.`;
+
+    } else if (diferenciaAnterior > 0) {
+
+        recomendacion =
+            `Buen progreso. Subiste ${diferenciaAnterior} ${
+                diferenciaAnterior === 1 ? "rep" : "reps"
+            } respecto a tu sesión anterior.`;
+
+    } else if (diferenciaAnterior === 0 && mismoPeso) {
+
+        recomendacion =
+            `Mantuviste ${ultimaMarca} ${
+                ultimaMarca === 1 ? "rep" : "reps"
+            } con el mismo peso. Intenta sumar 1 rep en la próxima sesión.`;
+
+    } else if (diferenciaAnterior === 0) {
+
+        recomendacion =
+            "Las reps se mantuvieron, pero hubo un cambio de carga. Consolida esta marca antes de volver a subir.";
+
+    } else if (aumentoPeso) {
+
+        recomendacion =
+            `Las reps bajaron de ${
+                datoAnterior.reps
+            } a ${
+                ultimoDato.reps
+            }, pero aumentaste la carga de ${
+                datoAnterior.peso
+            } kg a ${
+                ultimoDato.peso
+            } kg. Mantén esta carga y consolida las reps.`;
+
+    } else {
+
+        recomendacion =
+            `Bajaste de ${
+                datoAnterior.reps
+            } a ${
+                ultimoDato.reps
+            } reps. Prioriza técnica y recuperación antes de buscar aumentar la carga.`;
+    }
+
+    grafica.innerHTML = `
+
+        <div style="
+            position: relative;
+            width: 100%;
+            height: 260px;
+            min-width: ${Math.max(datos.length * 100, 500)}px;
+        ">
+
+            <svg
+                viewBox="0 0 1000 260"
+                preserveAspectRatio="none"
+                style="
+                    width: 100%;
+                    height: 100%;
+                    overflow: visible;
+                "
+            >
+
+                <line
+                    x1="0"
+                    y1="50"
+                    x2="1000"
+                    y2="50"
+                    stroke="#282832"
+                />
+
+                <line
+                    x1="0"
+                    y1="130"
+                    x2="1000"
+                    y2="130"
+                    stroke="#282832"
+                />
+
+                <line
+                    x1="0"
+                    y1="210"
+                    x2="1000"
+                    y2="210"
+                    stroke="#282832"
+                />
+
+                <polyline
+                    points="
+                        ${datos.map((dato, index) => {
+
+                            const x =
+                                datos.length === 1
+                                    ? 500
+                                    : (index / (datos.length - 1)) * 1000;
+
+                            const y =
+                                230 -
+                                (dato.reps / maxReps) * 180;
+
+                            return `${x},${y}`;
+
+                        }).join(" ")}
+                    "
+                    fill="none"
+                    stroke="#8b5cf6"
+                    stroke-width="5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                />
+
+                ${datos.map((dato, index) => {
+
+                    const x =
+                        datos.length === 1
+                            ? 500
+                            : (index / (datos.length - 1)) * 1000;
+
+                    const y =
+                        230 -
+                        (dato.reps / maxReps) * 180;
+
+                    return `
+                        <circle
+                            cx="${x}"
+                            cy="${y}"
+                            r="7"
+                            fill="#8b5cf6"
+                        />
+
+                        <text
+                            x="${x}"
+                            y="${y - 14}"
+                            text-anchor="middle"
+                            fill="white"
+                            font-size="14"
+                        >
+                            ${dato.reps}
+                        </text>
+
+                        <text
+                            x="${x}"
+                            y="${y + 25}"
+                            text-anchor="middle"
+                            fill="#9999a8"
+                            font-size="11"
+                        >
+                            ${dato.peso !== null ? dato.peso + " kg" : "—"}
+                        </text>
+
+                        <text
+                            x="${x}"
+                            y="${y + 40}"
+                            text-anchor="middle"
+                            fill="#9999a8"
+                            font-size="10"
+                        >
+                            ${dato.rir !== null ? "RIR " + dato.rir : "—"}
+                        </text>
+
+                        <text
+                            x="${x}"
+                            y="250"
+                            text-anchor="middle"
+                            fill="#9999a8"
+                            font-size="10"
+                        >
+                            ${new Date(dato.fecha).toLocaleDateString("es-MX", {
+                                day: "2-digit",
+                                month: "2-digit"
+                            })}
+                        </text>
+                    `;
+
+                }).join("")}
+
+            </svg>
+
+        </div>
+
+        <div style="
+            margin-top: 20px;
+            padding: 15px;
+            background: #0d0d12;
+            border: 1px solid #282832;
+            border-radius: 10px;
+            text-align: center;
+        ">
+
+            <span style="
+                color: #9999a8;
+                font-size: 12px;
+            ">
+                Estado actual
+            </span>
+
+            <strong style="
+                display: block;
+                margin-top: 6px;
+                font-size: 20px;
+            ">
+                ${estadoProgreso}
+            </strong>
+
+        </div>
+
+        <div style="
+            margin-top: 12px;
+            padding: 15px;
+            background: #0d0d12;
+            border: 1px solid #282832;
+            border-radius: 10px;
+            text-align: center;
+        ">
+
+            <span style="
+                color: #9999a8;
+                font-size: 12px;
+            ">
+                Último entrenamiento vs. anterior
+            </span>
+
+            <strong style="
+                display: block;
+                margin-top: 6px;
+                font-size: 20px;
+            ">
+                ${
+                    datos.length > 1
+                        ? `${diferenciaAnterior > 0 ? "+" : ""}${diferenciaAnterior} reps`
+                        : "Primer registro"
+                }
+            </strong>
+
+        </div>
+
+        <div style="
+            margin-top: 12px;
+            padding: 18px;
+            background: #14141c;
+            border: 1px solid #6d28d9;
+            border-radius: 10px;
+        ">
+
+            <span style="
+                color: #9999a8;
+                font-size: 12px;
+            ">
+                🧠 Frankenstein Musculoso
+            </span>
+
+            <p style="
+                margin-top: 8px;
+                line-height: 1.5;
+            ">
+                ${recomendacion}
+            </p>
+
+        </div>
+
+        <div style="
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        ">
+
+            <div style="
+                background: #0d0d12;
+                border: 1px solid #282832;
+                border-radius: 10px;
+                padding: 15px;
+                text-align: center;
+            ">
+                <span style="
+                    color: #9999a8;
+                    font-size: 12px;
+                ">
+                    🏆 Mejor marca
+                </span>
+
+                <strong style="
+                    display: block;
+                    margin-top: 6px;
+                    font-size: 22px;
+                ">
+                    ${mejorMarca} reps
+                </strong>
+            </div>
+
+            <div style="
+                background: #0d0d12;
+                border: 1px solid #282832;
+                border-radius: 10px;
+                padding: 15px;
+                text-align: center;
+            ">
+                <span style="
+                    color: #9999a8;
+                    font-size: 12px;
+                ">
+                    🎯 Última marca
+                </span>
+
+                <strong style="
+                    display: block;
+                    margin-top: 6px;
+                    font-size: 22px;
+                ">
+                    ${ultimaMarca} reps
+                </strong>
+            </div>
+
+            <div style="
+                background: #0d0d12;
+                border: 1px solid #282832;
+                border-radius: 10px;
+                padding: 15px;
+                text-align: center;
+            ">
+                <span style="
+                    color: #9999a8;
+                    font-size: 12px;
+                ">
+                    📈 Progreso
+                </span>
+
+                <strong style="
+                    display: block;
+                    margin-top: 6px;
+                    font-size: 22px;
+                ">
+                    ${diferencia > 0 ? "+" : ""}${diferencia} reps
+                </strong>
+            </div>
+
+        </div>
+
+    `;
+}
+
+mostrarPagina("dashboard");
+
+// Mostrar historial
+
+function mostrarHistorial() {
+
+
+    const container =
+        document.getElementById("historialContainer");
+
+    const entrenamientos =
+        JSON.parse(
+            localStorage.getItem("frankensteinEntrenamientos")
+        ) || [];
+
+    if (entrenamientos.length === 0) {
+
+        container.innerHTML = `
+            <p style="color: #9999a8;">
+                Todavía no hay entrenamientos registrados.
+            </p>
+        `;
+
+        return;
+    }
+
+    container.innerHTML = "";
+
+    [...entrenamientos].reverse().forEach(entrenamiento => {
+
+        const fecha = new Date(entrenamiento.fecha);
+
+        const tarjeta = document.createElement("div");
+
+        tarjeta.className = "card";
+
+        tarjeta.style.marginBottom = "15px";
+
+       tarjeta.innerHTML = `
+    <div style="
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+">
+
+    <h3 style="margin: 0;">
+        🧟‍♂️ Entrenamiento #${entrenamientos.length - entrenamientos.indexOf(entrenamiento)}
+        ${entrenamiento.rutina === "Cindy"
+            ? "🔥 Cindy"
+            : "⚡ Rutina Libre"}
+    </h3>
+
+    <button
+        type="button"
+        onclick="borrarEntrenamiento(${entrenamientos.indexOf(entrenamiento)})"
+        style="
+            width: auto;
+            margin: 0;
+            padding: 7px 10px;
+            background: #3a1820;
+        "
+    >
+        🗑️
+    </button>
+
+</div>
+
+    <p style="color: #9999a8; margin-top: 5px;">
+    📅 ${fecha.toLocaleDateString("es-MX")}
+    · 💪 ${entrenamiento.ejercicios.length} ejercicios
+</p>
+
+    ${entrenamiento.ejercicios.map(ejercicio => `
+    <p style="margin-top: 10px;">
+     <strong>${ejercicio.nombre}</strong>
+<br>
+
+<span style="color: #9999a8;">
+    ${ejercicio.series} × ${ejercicio.reps}
+    ${ejercicio.rir !== null
+        ? ` · RIR ${ejercicio.rir}`
+        : ""}
+    ${ejercicio.peso !== null
+        ? ` · 🏋️ ${ejercicio.peso} kg`
+        : ""}
+</span>
+    </p>
+`).join("")}
+        `;
+
+        container.appendChild(tarjeta);
+
+    });
+
+}
+
+function actualizarRecords() {
+
+    const entrenamientos =
+        JSON.parse(
+            localStorage.getItem("frankensteinEntrenamientos")
+        ) || [];
+
+    const mejoresMarcas = {};
+
+    entrenamientos.forEach(entrenamiento => {
+
+        entrenamiento.ejercicios.forEach(ejercicio => {
+
+            const nombre = ejercicio.nombre;
+            const reps = ejercicio.reps;
+
+            if (
+                !mejoresMarcas[nombre] ||
+                reps > mejoresMarcas[nombre]
+            ) {
+                mejoresMarcas[nombre] = reps;
+            }
+
+        });
+
+    });
+
+    const nombresEjercicios =
+        Object.keys(mejoresMarcas);
+
+    const lista =
+        document.getElementById("listaRecords");
+
+    if (!lista) {
+        return;
+    }
+
+    if (nombresEjercicios.length === 0) {
+
+        lista.innerHTML = `
+            <p style="
+                color: #9999a8;
+            ">
+                Todavía no tienes récords registrados.
+            </p>
+        `;
+
+        return;
+    }
+
+    lista.innerHTML =
+        nombresEjercicios.map(nombre => `
+
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px;
+                margin-top: 10px;
+                background: #0d0d12;
+                border: 1px solid #282832;
+                border-radius: 10px;
+            ">
+
+                <strong>
+                    🏆 ${nombre}
+                </strong>
+
+                <span style="
+                    color: #9999a8;
+                ">
+                    ${mejoresMarcas[nombre]} reps
+                </span>
+
+            </div>
+
+        `).join("");
+}
+
+function mostrarUltimoEntrenamiento() {
+
+    const container =
+        document.getElementById("ultimoEntrenamiento");
+
+    const entrenamientos =
+        JSON.parse(
+            localStorage.getItem("frankensteinEntrenamientos")
+        ) || [];
+
+    if (entrenamientos.length === 0) {
+        container.innerHTML = `
+            <p style="color: #9999a8;">
+                Todavía no has registrado ningún entrenamiento.
+            </p>
+        `;
+        return;
+    }
+
+    const entrenamiento =
+        entrenamientos[entrenamientos.length - 1];
+
+    const fecha =
+        new Date(entrenamiento.fecha);
+
+    container.innerHTML = `
+
+        <strong style="font-size: 18px;">
+            ${entrenamiento.rutina === "Cindy"
+                ? "🔥 Cindy"
+                : "⚡ Rutina Libre"}
+        </strong>
+
+        <p style="
+            color: #9999a8;
+            margin-top: 6px;
+        ">
+            📅 ${fecha.toLocaleDateString("es-MX")}
+            · 💪 ${entrenamiento.ejercicios.length} ejercicios
+        </p>
+
+        ${entrenamiento.ejercicios.map(ejercicio => `
+            <p style="margin-top: 10px;">
+                <strong>${ejercicio.nombre}</strong>
+                <br>
+
+                <span style="color: #9999a8;">
+                    ${ejercicio.series} × ${ejercicio.reps}
+                    ${ejercicio.rir !== null
+                        ? ` · RIR ${ejercicio.rir}`
+                        : ""}
+                    ${ejercicio.peso !== null
+                        ? ` · 🏋️ ${ejercicio.peso} kg`
+                        : ""}
+                </span>
+            </p>
+        `).join("")}
+
+    `;
+}
+
+function mostrarObservacion() {
+
+function obtenerEstadoEjercicio(nombreEjercicio) {
+
+    const entrenamientos =
+        JSON.parse(
+            localStorage.getItem("frankensteinEntrenamientos")
+        ) || [];
+
+    const registros = [];
+
+    entrenamientos.forEach(entrenamiento => {
+
+        entrenamiento.ejercicios.forEach(ejercicio => {
+
+            if (ejercicio.nombre === nombreEjercicio) {
+
+                registros.push({
+                    reps: ejercicio.reps,
+                    peso: ejercicio.peso
+                });
+
+            }
+
+        });
+
+    });
+
+    if (registros.length < 2) {
+        return "observacion";
+    }
+
+    const ultimo =
+        registros[registros.length - 1];
+
+    const anterior =
+        registros[registros.length - 2];
+
+    if (ultimo.reps > anterior.reps) {
+        return "adaptacion";
+    }
+
+    if (
+        ultimo.peso !== null &&
+        anterior.peso !== null &&
+        ultimo.peso > anterior.peso
+    ) {
+        return "observacion";
+    }
+
+    if (registros.length >= 3) {
+
+        const ultimos =
+            registros.slice(-3);
+
+        const mismaMarca =
+            ultimos.every(
+                registro =>
+                    registro.reps === ultimos[0].reps
+            );
+
+        if (mismaMarca) {
+            return "estancamiento";
+        }
+    }
+
+    return "observacion";
+}
+
+    const container =
+        document.getElementById("frankensteinObserva");
+
+    if (!container) {
+        return;
+    }
+
+    const entrenamientos =
+        JSON.parse(
+            localStorage.getItem("frankensteinEntrenamientos")
+        ) || [];
+
+    if (entrenamientos.length === 0) {
+
+        container.innerHTML = `
+            <p style="
+                margin-top: 10px;
+                line-height: 1.5;
+            ">
+                Todavía estás construyendo tu fuerza.
+                Registra algunos entrenamientos y empezaré a detectar patrones.
+            </p>
+        `;
+
+        return;
+    }
+
+    const ultimo =
+        entrenamientos[entrenamientos.length - 1];
+
+let observacion = `
+    👀 Frankenstein está observando tus registros...
+`;
+
+const estado = obtenerEstadoEjercicio(
+    ultimo.ejercicios[0].nombre
+);
+
+if (estado === "adaptacion") {
+
+    observacion = `
+        🟢 <strong>Adaptación detectada.</strong>
+        Tu rendimiento está mejorando.
+        Frankenstein observa que estás respondiendo bien al entrenamiento.
+    `;
+
+} else if (estado === "estancamiento") {
+
+    observacion = `
+        🔴 <strong>Estancamiento detectado.</strong>
+        Tu marca lleva varios registros sin cambiar.
+        Frankenstein estará observando tu próxima sesión.
+    `;
+
+} else if (estado === "observacion") {
+
+    observacion = `
+        🟡 <strong>Observación.</strong>
+        Todavía no hay suficiente cambio para clasificar tu progreso.
+        Frankenstein seguirá recopilando datos.
+    `;
+}
+
+let huboNuevoRecord = false;
+
+    ultimo.ejercicios.forEach(ejercicio => {
+
+        let mejorMarcaAnterior = 0;
+
+        entrenamientos
+            .slice(0, -1)
+            .forEach(entrenamiento => {
+
+                entrenamiento.ejercicios.forEach(e => {
+
+                    if (
+                        e.nombre === ejercicio.nombre &&
+                        e.reps > mejorMarcaAnterior
+                    ) {
+                        mejorMarcaAnterior = e.reps;
+                    }
+
+                });
+
+            });
+
+        if (ejercicio.reps > mejorMarcaAnterior) {
+
+huboNuevoRecord = true;
+
+const estadoRecord =
+    obtenerEstadoEjercicio(ejercicio.nombre);
+    
+
+            if (estadoRecord === "adaptacion") {
+
+    observacion = `
+        🏆 <strong>Nuevo récord.</strong>
+        ${ejercicio.nombre}:
+        <strong>${ejercicio.reps} reps</strong>.
+
+        <br><br>
+
+        🟢 <strong>Adaptación detectada.</strong>
+        Tu rendimiento está mejorando.
+    `;
+
+} else {
+
+    observacion = `
+        🏆 <strong>Nuevo récord.</strong>
+        ${ejercicio.nombre}:
+        <strong>${ejercicio.reps} reps</strong>.
+        Frankenstein lo ha registrado.
+    `;
+}
+
+
+for (
+    let i = entrenamientos.length - 2;
+    i >= 0;
+    i--
+) {
+
+    const entrenamientoAnterior =
+        entrenamientos[i];
+
+    const ejercicioAnterior =
+        entrenamientoAnterior.ejercicios.find(
+            e => e.nombre === ejercicio.nombre
+        );
+
+    if (ejercicioAnterior) {
+        registroAnterior = ejercicioAnterior;
+        break;
+    }
+
+}
+
+if (
+    registroAnterior &&
+    ejercicio.peso !== null &&
+    registroAnterior.peso !== null &&
+    ejercicio.peso > registroAnterior.peso &&
+    ejercicio.reps < registroAnterior.reps
+) {
+
+    observacion = `
+        ⚠️ <strong>Frankenstein observa.</strong>
+        ${ejercicio.nombre}:
+        subiste el peso de
+        <strong>${registroAnterior.peso} kg</strong>
+        a
+        <strong>${ejercicio.peso} kg</strong>,
+        pero las reps bajaron de
+        <strong>${registroAnterior.reps}</strong>
+        a
+        <strong>${ejercicio.reps}</strong>.
+        La carga aumentó; observa cómo responde tu rendimiento.
+    `;
+
+}
+
+            const registrosEjercicio = [];
+
+            entrenamientos.forEach(entrenamiento => {
+
+                entrenamiento.ejercicios.forEach(e => {
+
+                    if (e.nombre === ejercicio.nombre) {
+                        registrosEjercicio.push(e.reps);
+                    }
+
+                });
+
+            });
+
+            const ultimos =
+                registrosEjercicio.slice(-3);
+
+            if (ultimos.length >= 3 && !huboNuevoRecord) {
+
+                const primero = ultimos[0];
+                const ultimoRegistro =
+                    ultimos[ultimos.length - 1];
+
+                if (ultimoRegistro > primero) {
+
+                    observacion = `
+                        📈 <strong>Progreso detectado.</strong>
+                        ${ejercicio.nombre}
+                        pasó de
+                        <strong>${primero}</strong>
+                        a
+                        <strong>${ultimoRegistro} reps</strong>.
+                        Sigue construyendo.
+                    `;
+
+                } else if (
+                    ultimos.every(reps => reps === primero)
+                ) {
+
+                    observacion = `
+                        ⏸️ <strong>Posible estancamiento.</strong>
+                        ${ejercicio.nombre}
+                        lleva varios registros en
+                        <strong>${primero} reps</strong>.
+                        Frankenstein estará observando tu próxima marca.
+                    `;
+
+                }
+
+            }
+
+        }
+
+    });
+
+    container.innerHTML = `
+        <p style="
+            margin-top: 10px;
+            line-height: 1.5;
+        ">
+            ${observacion}
+        </p>
+    `;
+}
+
+function borrarEntrenamiento(indice) {
+
+    const confirmar = confirm(
+        "¿Seguro que quieres borrar este entrenamiento?"
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+    let historial =
+        JSON.parse(
+            localStorage.getItem("frankensteinEntrenamientos")
+        ) || [];
+
+let xp =
+    Number(localStorage.getItem("frankensteinXP")) || 0;
+
+xp += 50;
+
+localStorage.setItem(
+    "frankensteinXP",
+    xp
+);
+    
+    mostrarHistorial();
+
+    alert("🗑️ Entrenamiento eliminado.");
+}
+</script>
+
+    <script>
+
+</script>
+
+</body>
+</html>
