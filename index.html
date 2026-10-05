@@ -711,6 +711,11 @@ if (error) {
 
 alert("🧟‍♂️ Entrenamiento registrado correctamente.");
 
+mostrarUltimoEntrenamiento();
+actualizarRecords();
+mostrarObservacion();
+
+
 console.log("Entrenamiento guardado:", entrenamiento);
 
 }
@@ -753,61 +758,7 @@ function mostrarPagina(pagina) {
         progreso.style.display = "block";
         mostrarProgreso();
     }
-    async function actualizarGraficaProgreso() {
-
-        const { data: entrenamientosNube, error } =
-    await window.clienteSupabase
-        .from("entrenamientos")
-        .select("*")
-        .order("fecha", { ascending: true });
-
-if (error) {
-    console.error("❌ Error cargando progreso:", error);
-    return;
-}
-
-    const selector =
-        document.getElementById("progresoEjercicioSelector");
-
-    const grafica =
-        document.getElementById("graficaProgreso");
-
-    const titulo =
-        document.getElementById("tituloGrafica");
-
-    if (!selector || !grafica) return;
-
-    const ejercicioSeleccionado = selector.value;
-
-    const entrenamientos = entrenamientosNube || [];
-
-    const datos = [];
-
-    entrenamientos.forEach(entrenamiento => {
-
-        entrenamiento.ejercicios.forEach(ejercicio => {
-
-            if (ejercicio.nombre === ejercicioSeleccionado) {
-
-            datos.push({
-    fecha: entrenamiento.fecha,
-    series: ejercicio.series,
-    reps: ejercicio.reps,
-    peso: ejercicio.peso,
-    rir: ejercicio.rir,
-    volumen:
-        ejercicio.series *
-        ejercicio.reps *
-        (ejercicio.peso !== null ? ejercicio.peso : 1)
-});
-
-            }
-
-        });
-
-    });
-
-    titulo.textContent =
+        titulo.textContent =
         `📈 Progreso — ${ejercicioSeleccionado}`;
 
     if (datos.length > 0) {
@@ -1218,45 +1169,83 @@ if (datos.length === 1) {
             </strong>
         </div>
 
-        <div style="
-            background: #0d0d12;
-            border: 1px solid #282832;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-        ">
-            <span style="
-                color: #9999a8;
-                font-size: 12px;
-            ">
-                📈 Progreso
-            </span>
+<div style="
+    background: #0d0d12;
+    border: 1px solid #282832;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+">
+    <span style="
+        color: #9999a8;
+        font-size: 12px;
+    ">
+        📈 Progreso
+    </span>
 
-            <strong style="
-                display: block;
-                margin-top: 6px;
-                font-size: 22px;
-            ">
-                ${diferencia > 0 ? "+" : ""}${diferencia} reps
-            </strong>
-        </div>
+    <strong style="
+        display: block;
+        margin-top: 6px;
+        font-size: 22px;
+    ">
+        ${diferencia > 0 ? "+" : ""}${diferencia} reps
+    </strong>
+</div>
 
-    </div>
+<div style="
+    background: #0d0d12;
+    border: 1px solid #282832;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+">
+    <span style="
+        color: #9999a8;
+        font-size: 12px;
+    ">
+        📦 Mejor volumen
+    </span>
+
+    <strong style="
+        display: block;
+        margin-top: 6px;
+        font-size: 22px;
+    ">
+        ${mejorVolumen}
+    </strong>
+
+    <span style="
+        color: #9999a8;
+        font-size: 11px;
+    ">
+        unidades de volumen
+    </span>
+</div>
+
+</div>
 `;
-
-}
 }
 
 
-function mostrarProgreso() {
+async function mostrarProgreso() {
 
     const container =
         document.getElementById("progresoContainer");
 
-    const entrenamientos =
-        JSON.parse(
-            localStorage.getItem("frankensteinEntrenamientos")
-        ) || [];
+    const { data: entrenamientosNube, error } =
+    await window.clienteSupabase
+        .from("entrenamientos")
+        .select("*")
+        .order("fecha", { ascending: true });
+
+if (error) {
+    console.error("❌ Error cargando progreso:", error);
+    return;
+}
+
+const entrenamientos =
+    entrenamientosNube || [];
+
 
     if (entrenamientos.length === 0) {
         container.innerHTML = `
@@ -1287,7 +1276,7 @@ function mostrarProgreso() {
 
             <h3>📊 Selecciona un ejercicio</h3>
 
-            <<select
+            <select
     id="progresoEjercicioSelector"
     onchange="actualizarGraficaProgreso()"
     style="
@@ -1735,7 +1724,7 @@ async function actualizarGraficaProgreso() {
 
         <div style="
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 12px;
             margin-top: 20px;
         ">
