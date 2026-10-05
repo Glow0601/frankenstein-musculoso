@@ -1248,15 +1248,25 @@ if (datos.length === 1) {
 }
 
 
-function mostrarProgreso() {
+async function mostrarProgreso() {
 
     const container =
         document.getElementById("progresoContainer");
 
-    const entrenamientos =
-        JSON.parse(
-            localStorage.getItem("frankensteinEntrenamientos")
-        ) || [];
+    const { data: entrenamientosNube, error } =
+    await window.clienteSupabase
+        .from("entrenamientos")
+        .select("*")
+        .order("fecha", { ascending: true });
+
+if (error) {
+    console.error("❌ Error cargando progreso:", error);
+    return;
+}
+
+const entrenamientos =
+    entrenamientosNube || [];
+
 
     if (entrenamientos.length === 0) {
         container.innerHTML = `
@@ -1287,7 +1297,7 @@ function mostrarProgreso() {
 
             <h3>📊 Selecciona un ejercicio</h3>
 
-            <<select
+            <select
     id="progresoEjercicioSelector"
     onchange="actualizarGraficaProgreso()"
     style="
