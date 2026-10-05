@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Tracker de entrenamiento, progreso y nutrición para Frankenstein Musculoso.">
@@ -422,6 +424,12 @@ button:hover {
 </div>
 <script>
 
+    const SUPABASE_URL = "https://igcuxkethpzdzruawyer.supabase.co";
+
+const SUPABASE_KEY = "sb_publishable_MZLn_TBD7b1AGJSjdb7mYA_xA2Fc1Zo";
+
+
+
     // Biblioteca de ejercicios disponibles
 
     
@@ -623,7 +631,7 @@ button:hover {
 
 // Registrar entrenamiento
 
-function registrarEntrenamiento() {
+async function registrarEntrenamiento() {
 
     const container = document.getElementById("exerciseContainer");
     const ejercicios = container.querySelectorAll(".exercise");
@@ -690,9 +698,21 @@ historial.push(entrenamiento);
         JSON.stringify(historial)
     );
 
-    alert("🧟‍♂️ Entrenamiento registrado correctamente.");
 
-    console.log("Entrenamiento guardado:", entrenamiento);
+const { error } = await window.clienteSupabase
+    .from("entrenamientos")
+    .insert([entrenamiento]);
+
+if (error) {
+    console.error("❌ Error al guardar en Supabase:", error);
+    alert("⚠️ Se guardó localmente, pero hubo un problema con la nube.");
+    return;
+}
+
+alert("🧟‍♂️ Entrenamiento registrado correctamente.");
+
+console.log("Entrenamiento guardado:", entrenamiento);
+
 }
 
 // Mostrar páginas
@@ -733,7 +753,18 @@ function mostrarPagina(pagina) {
         progreso.style.display = "block";
         mostrarProgreso();
     }
-    function actualizarGraficaProgreso() {
+    async function actualizarGraficaProgreso() {
+
+        const { data: entrenamientosNube, error } =
+    await window.clienteSupabase
+        .from("entrenamientos")
+        .select("*")
+        .order("fecha", { ascending: true });
+
+if (error) {
+    console.error("❌ Error cargando progreso:", error);
+    return;
+}
 
     const selector =
         document.getElementById("progresoEjercicioSelector");
@@ -748,10 +779,7 @@ function mostrarPagina(pagina) {
 
     const ejercicioSeleccionado = selector.value;
 
-    const entrenamientos =
-        JSON.parse(
-            localStorage.getItem("frankensteinEntrenamientos")
-        ) || [];
+    const entrenamientos = entrenamientosNube || [];
 
     const datos = [];
 
@@ -782,7 +810,7 @@ function mostrarPagina(pagina) {
     titulo.textContent =
         `📈 Progreso — ${ejercicioSeleccionado}`;
 
-    if (datos.length === 0) {
+    if (datos.length > 0) {
     const mejorMarca =
         Math.max(...datos.map(dato => dato.reps));
         
@@ -1301,7 +1329,13 @@ function mostrarProgreso() {
     actualizarGraficaProgreso();
 }
 
-function actualizarGraficaProgreso() {
+async function actualizarGraficaProgreso() {
+
+    const { data: entrenamientosNube, error } =
+        await window.clienteSupabase
+            .from("entrenamientos")
+            .select("*")
+            .order("fecha", { ascending: true });
 
     const selector =
         document.getElementById("progresoEjercicioSelector");
@@ -1316,10 +1350,7 @@ function actualizarGraficaProgreso() {
 
     const ejercicioSeleccionado = selector.value;
 
-    const entrenamientos =
-        JSON.parse(
-            localStorage.getItem("frankensteinEntrenamientos")
-        ) || [];
+    const entrenamientos = entrenamientosNube || [];
 
     const datos = [];
 
@@ -1783,20 +1814,30 @@ function actualizarGraficaProgreso() {
     `;
 }
 
-mostrarPagina("dashboard");
-
 // Mostrar historial
 
-function mostrarHistorial() {
+async function mostrarHistorial() {
 
+    const { data: entrenamientosNube, error } =
+        await window.clienteSupabase
+            .from("entrenamientos")
+            .select("*")
+            .order("fecha", { ascending: true });
+
+    if (error) {
+        console.error("❌ Error cargando historial:", error);
+        return;
+    }
+
+    console.log(
+        "☁️ Entrenamientos desde Supabase:",
+        entrenamientosNube
+    );
 
     const container =
         document.getElementById("historialContainer");
 
-    const entrenamientos =
-        JSON.parse(
-            localStorage.getItem("frankensteinEntrenamientos")
-        ) || [];
+    const entrenamientos = entrenamientosNube || [];
 
     if (entrenamientos.length === 0) {
 
@@ -1880,12 +1921,20 @@ function mostrarHistorial() {
 
 }
 
-function actualizarRecords() {
+async function actualizarRecords() {
 
-    const entrenamientos =
-        JSON.parse(
-            localStorage.getItem("frankensteinEntrenamientos")
-        ) || [];
+const { data: entrenamientosNube, error } =
+    await window.clienteSupabase
+        .from("entrenamientos")
+        .select("*")
+        .order("fecha", { ascending: true });
+
+if (error) {
+    console.error("❌ Error cargando récords:", error);
+    return;
+}
+
+    const entrenamientos = entrenamientosNube || [];
 
     const mejoresMarcas = {};
 
@@ -1959,30 +2008,52 @@ function actualizarRecords() {
         `).join("");
 }
 
-function mostrarUltimoEntrenamiento() {
+async function mostrarUltimoEntrenamiento() {
 
     const container =
         document.getElementById("ultimoEntrenamiento");
 
+    const { data: entrenamientosNube, error } =
+        await window.clienteSupabase
+            .from("entrenamientos")
+            .select("*")
+            .order("fecha", { ascending: false })
+            .limit(1);
+
+    if (error) {
+        console.error(
+            "❌ Error cargando último entrenamiento:",
+            error
+        );
+
+        return;
+    }
+
     const entrenamientos =
-        JSON.parse(
-            localStorage.getItem("frankensteinEntrenamientos")
-        ) || [];
+        entrenamientosNube || [];
+
+        console.log("🧟 Último entrenamiento:", entrenamientos);
 
     if (entrenamientos.length === 0) {
+
         container.innerHTML = `
             <p style="color: #9999a8;">
                 Todavía no has registrado ningún entrenamiento.
             </p>
         `;
+
         return;
     }
 
     const entrenamiento =
-        entrenamientos[entrenamientos.length - 1];
+        entrenamientos[0];
+        console.log("🧟 ENTRENAMIENTO MOSTRADO:", entrenamiento);
+
 
     const fecha =
         new Date(entrenamiento.fecha);
+
+        console.log("🧟 CONTENEDOR:", container);
 
     container.innerHTML = `
 
@@ -2018,16 +2089,13 @@ function mostrarUltimoEntrenamiento() {
         `).join("")}
 
     `;
+    
+    console.log("🧟 HTML FINAL:", container.innerHTML);
 }
 
-function mostrarObservacion() {
+async function mostrarObservacion() {
 
-function obtenerEstadoEjercicio(nombreEjercicio) {
-
-    const entrenamientos =
-        JSON.parse(
-            localStorage.getItem("frankensteinEntrenamientos")
-        ) || [];
+function obtenerEstadoEjercicio(nombreEjercicio, entrenamientos) {
 
     const registros = [];
 
@@ -2092,14 +2160,28 @@ function obtenerEstadoEjercicio(nombreEjercicio) {
     const container =
         document.getElementById("frankensteinObserva");
 
-    if (!container) {
-        return;
-    }
+ if (!container) {
+    return;
+}
 
-    const entrenamientos =
-        JSON.parse(
-            localStorage.getItem("frankensteinEntrenamientos")
-        ) || [];
+const { data: entrenamientosNube, error } =
+    await window.clienteSupabase
+        .from("entrenamientos")
+        .select("*")
+        .order("fecha", { ascending: true });
+
+if (error) {
+    console.error(
+        "❌ Error cargando observaciones:",
+        error
+    );
+    return;
+}
+
+const entrenamientos =
+    entrenamientosNube || [];
+
+// Los entrenamientos llegan desde Supabase
 
     if (entrenamientos.length === 0) {
 
@@ -2124,7 +2206,8 @@ let observacion = `
 `;
 
 const estado = obtenerEstadoEjercicio(
-    ultimo.ejercicios[0].nombre
+    ultimo.ejercicios[0].nombre,
+    entrenamientos
 );
 
 if (estado === "adaptacion") {
@@ -2180,7 +2263,10 @@ let huboNuevoRecord = false;
 huboNuevoRecord = true;
 
 const estadoRecord =
-    obtenerEstadoEjercicio(ejercicio.nombre);
+    obtenerEstadoEjercicio(
+        ejercicio.nombre,
+        entrenamientos
+    );
     
 
             if (estadoRecord === "adaptacion") {
@@ -2206,6 +2292,7 @@ const estadoRecord =
     `;
 }
 
+let registroAnterior = null;
 
 for (
     let i = entrenamientos.length - 2;
@@ -2317,7 +2404,7 @@ if (
     `;
 }
 
-function borrarEntrenamiento(indice) {
+async function borrarEntrenamiento(indice) {
 
     const confirmar = confirm(
         "¿Seguro que quieres borrar este entrenamiento?"
@@ -2327,25 +2414,74 @@ function borrarEntrenamiento(indice) {
         return;
     }
 
-    let historial =
-        JSON.parse(
-            localStorage.getItem("frankensteinEntrenamientos")
-        ) || [];
+    const { data: entrenamientosNube, error: errorCarga } =
+        await window.clienteSupabase
+            .from("entrenamientos")
+            .select("id")
+            .order("fecha", { ascending: true });
 
-let xp =
-    Number(localStorage.getItem("frankensteinXP")) || 0;
+    if (errorCarga) {
+        console.error(
+            "❌ Error cargando entrenamiento:",
+            errorCarga
+        );
+        alert("⚠️ No se pudo cargar el entrenamiento.");
+        return;
+    }
 
-xp += 50;
+    const entrenamiento =
+        entrenamientosNube[indice];
 
-localStorage.setItem(
-    "frankensteinXP",
-    xp
-);
-    
+    if (!entrenamiento) {
+        alert("⚠️ No se encontró el entrenamiento.");
+        return;
+    }
+
+    const { error } =
+        await window.clienteSupabase
+            .from("entrenamientos")
+            .delete()
+            .eq("id", entrenamiento.id);
+
+    if (error) {
+        console.error(
+            "❌ Error eliminando entrenamiento:",
+            error
+        );
+        alert("⚠️ No se pudo eliminar el entrenamiento.");
+        return;
+    }
+
     mostrarHistorial();
 
     alert("🗑️ Entrenamiento eliminado.");
 }
+
+async function probarSupabase() {
+
+    window.clienteSupabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+mostrarPagina("dashboard");
+
+    const { data, error } = await clienteSupabase
+    .from("entrenamientos")
+        .select("id")
+        .limit(1);
+
+    if (error) {
+        console.error("❌ Error Supabase:", error);
+        return;
+    }
+
+    console.log("✅ Supabase conectado correctamente:", data);
+}
+
+probarSupabase();
+
+
 </script>
 
     <script>
