@@ -893,11 +893,13 @@ if (datos.length === 1) {
         Math.max(...datos.map(dato => dato.reps));
 
     grafica.innerHTML = `
-    <div style="
+    
+<div style="
     position: relative;
     width: 100%;
     height: 260px;
     min-width: ${Math.max(datos.length * 100, 500)}px;
+    box-sizing: border-box;
 ">
 
         <svg
@@ -1046,181 +1048,140 @@ if (datos.length === 1) {
     text-align: center;
 ">
 
-    <span style="
-        color: #9999a8;
-        font-size: 12px;
-    ">
-        Último entrenamiento vs. anterior
-
-        <div style="
-    margin-top: 12px;
-    padding: 18px;
-    background: #14141c;
-    border: 1px solid #6d28d9;
-    border-radius: 10px;
-">
-
-    <span style="
-        color: #9999a8;
-        font-size: 12px;
-    ">
-        🧠 Frankenstein Musculoso
-    </span>
-
-    <p style="
-        margin-top: 8px;
-        line-height: 1.5;
-    ">
-        ${recomendacion}
-    </p>
-
-</div>
-    </span>
-
-    <strong style="
-        display: block;
-        margin-top: 6px;
-        font-size: 20px;
-    ">
-        ${
-            datos.length > 1
-                ? `${diferenciaAnterior > 0 ? "+" : ""}${diferenciaAnterior} reps`
-                : "Primer registro"
-        }
-    </strong>
-
-</div>
-    <div style="
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-        margin-top: 20px;
-    ">
-
-    <div style="
-    margin-top: 20px;
-    padding: 15px;
-    background: #0d0d12;
-    border: 1px solid #282832;
-    border-radius: 10px;
-    text-align: center;
-">
-
-    <span style="
-        color: #9999a8;
-        font-size: 12px;
-    ">
-        Estado actual
-    </span>
-
-    <strong style="
-        display: block;
-        margin-top: 6px;
-        font-size: 20px;
-    ">
-        ${estadoProgreso}
-    </strong>
-
-</div>
-
-        <div style="
-            background: #0d0d12;
-            border: 1px solid #282832;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-        ">
-            <span style="
-                color: #9999a8;
-                font-size: 12px;
-            ">
-                🏆 Mejor marca
-            </span>
-
-            <strong style="
-                display: block;
-                margin-top: 6px;
-                font-size: 22px;
-            ">
-                ${mejorMarca} reps
-            </strong>
-        </div>
-
-        <div style="
-            background: #0d0d12;
-            border: 1px solid #282832;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-        ">
-            <span style="
-                color: #9999a8;
-                font-size: 12px;
-            ">
-                🎯 Última marca
-            </span>
-
-            <strong style="
-                display: block;
-                margin-top: 6px;
-                font-size: 22px;
-            ">
-                ${ultimaMarca} reps
-            </strong>
-        </div>
-
 <div style="
-    background: #0d0d12;
-    border: 1px solid #282832;
-    border-radius: 10px;
-    padding: 15px;
-    text-align: center;
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    box-sizing: border-box;
 ">
-    <span style="
-        color: #9999a8;
-        font-size: 12px;
-    ">
-        📈 Progreso
-    </span>
 
-    <strong style="
-        display: block;
-        margin-top: 6px;
-        font-size: 22px;
+    <!-- Comparación con la sesión anterior -->
+    <div style="
+        grid-column: 1 / -1;
+        padding: 18px;
+        background: #14141c;
+        border: 1px solid #282832;
+        border-radius: 12px;
     ">
-        ${diferencia > 0 ? "+" : ""}${diferencia} reps
-    </strong>
-</div>
+        <span style="color: #9999a8; font-size: 12px;">
+            📊 Último entrenamiento vs. anterior
+        </span>
 
-<div style="
-    background: #0d0d12;
-    border: 1px solid #282832;
-    border-radius: 10px;
-    padding: 15px;
-    text-align: center;
-">
-    <span style="
-        color: #9999a8;
-        font-size: 12px;
-    ">
-        📦 Mejor volumen
-    </span>
+        <strong style="
+            display: block;
+            margin-top: 8px;
+            font-size: 26px;
+        ">
+            ${
+                datos.length > 1
+                    ? `${diferenciaAnterior > 0 ? "+" : ""}${diferenciaAnterior} reps`
+                    : "Primer registro"
+            }
+        </strong>
+    </div>
 
-    <strong style="
-        display: block;
-        margin-top: 6px;
-        font-size: 22px;
+    <!-- Recomendación de Frankenstein -->
+    <div style="
+        grid-column: 1 / -1;
+        padding: 18px;
+        background: #14141c;
+        border: 1px solid #6d28d9;
+        border-radius: 12px;
     ">
-        ${mejorVolumen}
-    </strong>
+        <strong style="font-size: 15px;">
+            🧠 Frankenstein Musculoso
+        </strong>
 
-    <span style="
-        color: #9999a8;
-        font-size: 11px;
+        <p style="margin-top: 8px; line-height: 1.6;">
+            ${recomendacion}
+        </p>
+    </div>
+
+    <!-- Estado actual -->
+    <div style="
+        padding: 16px;
+        background: #0d0d12;
+        border: 1px solid #282832;
+        border-radius: 12px;
     ">
-        unidades de volumen
-    </span>
-</div>
+        <span style="color: #9999a8; font-size: 12px;">
+            Estado actual
+        </span>
+
+        <strong style="display: block; margin-top: 8px; font-size: 18px;">
+            ${estadoProgreso}
+        </strong>
+    </div>
+
+    <!-- Mejor marca -->
+    <div style="
+        padding: 16px;
+        background: #0d0d12;
+        border: 1px solid #282832;
+        border-radius: 12px;
+    ">
+        <span style="color: #9999a8; font-size: 12px;">
+            🏆 Mejor marca
+        </span>
+
+        <strong style="display: block; margin-top: 8px; font-size: 22px;">
+            ${mejorMarca} reps
+        </strong>
+    </div>
+
+    <!-- Última marca -->
+    <div style="
+        padding: 16px;
+        background: #0d0d12;
+        border: 1px solid #282832;
+        border-radius: 12px;
+    ">
+        <span style="color: #9999a8; font-size: 12px;">
+            🎯 Última marca
+        </span>
+
+        <strong style="display: block; margin-top: 8px; font-size: 22px;">
+            ${ultimaMarca} reps
+        </strong>
+    </div>
+
+    <!-- Progreso total -->
+    <div style="
+        padding: 16px;
+        background: #0d0d12;
+        border: 1px solid #282832;
+        border-radius: 12px;
+    ">
+        <span style="color: #9999a8; font-size: 12px;">
+            📈 Progreso total
+        </span>
+
+        <strong style="display: block; margin-top: 8px; font-size: 22px;">
+            ${diferencia > 0 ? "+" : ""}${diferencia} reps
+        </strong>
+    </div>
+
+    <!-- Mejor volumen -->
+    <div style="
+        padding: 16px;
+        background: #0d0d12;
+        border: 1px solid #282832;
+        border-radius: 12px;
+    ">
+        <span style="color: #9999a8; font-size: 12px;">
+            📦 Mejor volumen
+        </span>
+
+        <strong style="display: block; margin-top: 8px; font-size: 22px;">
+            ${mejorVolumen}
+        </strong>
+
+        <span style="color: #9999a8; font-size: 11px;">
+            Unidades de volumen
+        </span>
+    </div>
 
 </div>
 `;
@@ -1300,16 +1261,18 @@ const entrenamientos =
                 📈 Progreso
             </h3>
 
-            <div style="
-                height: 300px;
-                display: flex;
-                align-items: flex-end;
-                gap: 20px;
-                padding: 20px 10px;
-                overflow-x: auto;
-            " id="graficaProgreso">
+            
+<div style="
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 300px;
+    padding: 20px 10px;
+    overflow-x: auto;
+    box-sizing: border-box;
+" id="graficaProgreso">
 
-            </div>
+</div>
 
         </div>
 
@@ -1852,11 +1815,13 @@ async function mostrarHistorial() {
         tarjeta.style.marginBottom = "15px";
 
        tarjeta.innerHTML = `
-    <div style="
+<div style="
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+    width: 100%;
+    box-sizing: border-box;
 ">
 
     <h3 style="margin: 0;">
