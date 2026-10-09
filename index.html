@@ -2083,317 +2083,178 @@ async function mostrarUltimoEntrenamiento() {
 }
 
 async function mostrarObservacion() {
+    const container = document.getElementById("frankensteinObserva");
+    if (!container) return;
 
-function obtenerEstadoEjercicio(nombreEjercicio, entrenamientos) {
-
-    const registros = [];
-
-    entrenamientos.forEach(entrenamiento => {
-
-        entrenamiento.ejercicios.forEach(ejercicio => {
-
-            if (ejercicio.nombre === nombreEjercicio) {
-
-                registros.push({
-                    reps: ejercicio.reps,
-                    peso: ejercicio.peso
-                });
-
-            }
-
-        });
-
-    });
-
-    if (registros.length < 2) {
-        return "observacion";
-    }
-
-    const ultimo =
-        registros[registros.length - 1];
-
-    const anterior =
-        registros[registros.length - 2];
-
-    if (ultimo.reps > anterior.reps) {
-        return "adaptacion";
-    }
-
-    if (
-        ultimo.peso !== null &&
-        anterior.peso !== null &&
-        ultimo.peso > anterior.peso
-    ) {
-        return "observacion";
-    }
-
-    if (registros.length >= 3) {
-
-        const ultimos =
-            registros.slice(-3);
-
-        const mismaMarca =
-            ultimos.every(
-                registro =>
-                    registro.reps === ultimos[0].reps
-            );
-
-        if (mismaMarca) {
-            return "estancamiento";
-        }
-    }
-
-    return "observacion";
-}
-
-    const container =
-        document.getElementById("frankensteinObserva");
-
- if (!container) {
-    return;
-}
-
-const { data: entrenamientosNube, error } =
-    await window.clienteSupabase
+    const { data, error } = await window.clienteSupabase
         .from("entrenamientos")
         .select("*")
         .order("fecha", { ascending: true });
 
-if (error) {
-    console.error(
-        "❌ Error cargando observaciones:",
-        error
-    );
-    return;
-}
-
-const entrenamientos =
-    entrenamientosNube || [];
-
-// Los entrenamientos llegan desde Supabase
-
-    if (entrenamientos.length === 0) {
-
-        container.innerHTML = `
-            <p style="
-                margin-top: 10px;
-                line-height: 1.5;
-            ">
-                Todavía estás construyendo tu fuerza.
-                Registra algunos entrenamientos y empezaré a detectar patrones.
-            </p>
-        `;
-
+    if (error) {
+        console.error("Error cargando observaciones:", error);
+        container.innerHTML = "<p>No pude analizar tus entrenamientos. Inténtalo de nuevo.</p>";
         return;
     }
 
-    const ultimo =
-        entrenamientos[entrenamientos.length - 1];
-
-let observacion = `
-    👀 Frankenstein está observando tus registros...
-`;
-
-const estado = obtenerEstadoEjercicio(
-    ultimo.ejercicios[0].nombre,
-    entrenamientos
-);
-
-if (estado === "adaptacion") {
-
-    observacion = `
-        🟢 <strong>Adaptación detectada.</strong>
-        Tu rendimiento está mejorando.
-        Frankenstein observa que estás respondiendo bien al entrenamiento.
-    `;
-
-} else if (estado === "estancamiento") {
-
-    observacion = `
-        🔴 <strong>Estancamiento detectado.</strong>
-        Tu marca lleva varios registros sin cambiar.
-        Frankenstein estará observando tu próxima sesión.
-    `;
-
-} else if (estado === "observacion") {
-
-    observacion = `
-        🟡 <strong>Observación.</strong>
-        Todavía no hay suficiente cambio para clasificar tu progreso.
-        Frankenstein seguirá recopilando datos.
-    `;
-}
-
-let huboNuevoRecord = false;
-
-    ultimo.ejercicios.forEach(ejercicio => {
-
-        let mejorMarcaAnterior = 0;
-
-        entrenamientos
-            .slice(0, -1)
-            .forEach(entrenamiento => {
-
-                entrenamiento.ejercicios.forEach(e => {
-
-                    if (
-                        e.nombre === ejercicio.nombre &&
-                        e.reps > mejorMarcaAnterior
-                    ) {
-                        mejorMarcaAnterior = e.reps;
-                    }
-
-                });
-
-            });
-
-        if (ejercicio.reps > mejorMarcaAnterior) {
-
-huboNuevoRecord = true;
-
-const estadoRecord =
-    obtenerEstadoEjercicio(
-        ejercicio.nombre,
-        entrenamientos
+    const entrenamientos = (data || []).filter(
+        e => Array.isArray(e.ejercicios)
     );
-    
 
-            if (estadoRecord === "adaptacion") {
-
-    observacion = `
-        🏆 <strong>Nuevo récord.</strong>
-        ${ejercicio.nombre}:
-        <strong>${ejercicio.reps} reps</strong>.
-
-        <br><br>
-
-        🟢 <strong>Adaptación detectada.</strong>
-        Tu rendimiento está mejorando.
-    `;
-
-} else {
-
-    observacion = `
-        🏆 <strong>Nuevo récord.</strong>
-        ${ejercicio.nombre}:
-        <strong>${ejercicio.reps} reps</strong>.
-        Frankenstein lo ha registrado.
-    `;
-}
-
-let registroAnterior = null;
-
-for (
-    let i = entrenamientos.length - 2;
-    i >= 0;
-    i--
-) {
-
-    const entrenamientoAnterior =
-        entrenamientos[i];
-
-    const ejercicioAnterior =
-        entrenamientoAnterior.ejercicios.find(
-            e => e.nombre === ejercicio.nombre
-        );
-
-    if (ejercicioAnterior) {
-        registroAnterior = ejercicioAnterior;
-        break;
+    if (entrenamientos.length === 0) {
+        container.innerHTML = `
+            <p style="margin-top:10px;line-height:1.5;">
+                🧟‍♂️ Todavía estoy recopilando datos. Registra tu primer
+                entrenamiento y comenzaré a analizar tu rendimiento.
+            </p>`;
+        return;
     }
 
-}
+    const ultimoEntrenamiento = entrenamientos[entrenamientos.length - 1];
+    const ejerciciosActuales = ultimoEntrenamiento.ejercicios;
 
-if (
-    registroAnterior &&
-    ejercicio.peso !== null &&
-    registroAnterior.peso !== null &&
-    ejercicio.peso > registroAnterior.peso &&
-    ejercicio.reps < registroAnterior.reps
-) {
+    if (!ejerciciosActuales.length) {
+        container.innerHTML = "<p>El último entrenamiento no contiene ejercicios para analizar.</p>";
+        return;
+    }
 
-    observacion = `
-        ⚠️ <strong>Frankenstein observa.</strong>
-        ${ejercicio.nombre}:
-        subiste el peso de
-        <strong>${registroAnterior.peso} kg</strong>
-        a
-        <strong>${ejercicio.peso} kg</strong>,
-        pero las reps bajaron de
-        <strong>${registroAnterior.reps}</strong>
-        a
-        <strong>${ejercicio.reps}</strong>.
-        La carga aumentó; observa cómo responde tu rendimiento.
-    `;
+    const numero = valor => {
+        if (valor === null || valor === undefined || valor === "") return null;
+        const n = Number(valor);
+        return Number.isFinite(n) ? n : null;
+    };
 
-}
+    const observaciones = [];
 
-            const registrosEjercicio = [];
+    ejerciciosActuales.forEach(ejercicio => {
+        const nombre = ejercicio.nombre || "Ejercicio";
+        const repsActuales = numero(ejercicio.reps);
+        const pesoActual = numero(ejercicio.peso);
+        const rirActual = numero(ejercicio.rir);
 
-            entrenamientos.forEach(entrenamiento => {
+        if (repsActuales === null) return;
 
-                entrenamiento.ejercicios.forEach(e => {
+        const anteriores = [];
 
-                    if (e.nombre === ejercicio.nombre) {
-                        registrosEjercicio.push(e.reps);
-                    }
+        entrenamientos.slice(0, -1).forEach(entrenamiento => {
+            entrenamiento.ejercicios.forEach(e => {
+                if (e.nombre === nombre) {
+                    anteriores.push({
+                        reps: numero(e.reps),
+                        peso: numero(e.peso),
+                        rir: numero(e.rir)
+                    });
+                }
+            });
+        });
 
-                });
+        const registrosValidos = anteriores.filter(e => e.reps !== null);
+        const anterior = registrosValidos.length
+            ? registrosValidos[registrosValidos.length - 1]
+            : null;
 
+        const mejorMarcaAnterior = registrosValidos.length
+            ? Math.max(...registrosValidos.map(e => e.reps))
+            : null;
+
+        let mensaje = "";
+
+        if (mejorMarcaAnterior === null) {
+            mensaje = `
+                🧠 <strong>Primer registro de ${nombre}.</strong>
+                Hiciste <strong>${repsActuales} reps</strong>.
+                Esta será tu referencia para comparar tus próximas sesiones.
+            `;
+        } else if (repsActuales > mejorMarcaAnterior) {
+            mensaje = `
+                🏆 <strong>¡Nuevo récord de repeticiones!</strong>
+                ${nombre}: alcanzaste <strong>${repsActuales} reps</strong>,
+                superando tu mejor marca anterior de
+                <strong>${mejorMarcaAnterior}</strong>.
+                Intenta consolidar esta marca en tus próximas sesiones.
+            `;
+        } else if (
+            anterior &&
+            pesoActual !== null &&
+            anterior.peso !== null &&
+            pesoActual > anterior.peso &&
+            repsActuales < anterior.reps
+        ) {
+            mensaje = `
+                ⚖️ <strong>Mayor carga, menos repeticiones.</strong>
+                En ${nombre}, subiste de <strong>${anterior.peso} kg</strong>
+                a <strong>${pesoActual} kg</strong>, mientras las repeticiones
+                bajaron de <strong>${anterior.reps}</strong> a
+                <strong>${repsActuales}</strong>.
+                Puede ser una respuesta normal al aumento de carga.
+                Prioriza la técnica y consolida el peso antes de aumentarlo otra vez.
+            `;
+        } else if (
+            anterior &&
+            anterior.peso === pesoActual &&
+            repsActuales > anterior.reps
+        ) {
+            mensaje = `
+                📈 <strong>Mejora respecto a tu sesión anterior.</strong>
+                En ${nombre}, pasaste de <strong>${anterior.reps}</strong>
+                a <strong>${repsActuales} reps</strong> con la misma carga.
+                Si mantuviste buena técnica, busca una repetición adicional
+                cuando estés preparado.
+            `;
+        } else {
+            const ultimos = registrosValidos.slice(-2);
+            ultimos.push({
+                reps: repsActuales,
+                peso: pesoActual
             });
 
-            const ultimos =
-                registrosEjercicio.slice(-3);
+            const mismaMarca = ultimos.length >= 3 &&
+                ultimos.every(e =>
+                    e.reps === ultimos[0].reps &&
+                    e.peso === ultimos[0].peso
+                );
 
-            if (ultimos.length >= 3 && !huboNuevoRecord) {
-
-                const primero = ultimos[0];
-                const ultimoRegistro =
-                    ultimos[ultimos.length - 1];
-
-                if (ultimoRegistro > primero) {
-
-                    observacion = `
-                        📈 <strong>Progreso detectado.</strong>
-                        ${ejercicio.nombre}
-                        pasó de
-                        <strong>${primero}</strong>
-                        a
-                        <strong>${ultimoRegistro} reps</strong>.
-                        Sigue construyendo.
-                    `;
-
-                } else if (
-                    ultimos.every(reps => reps === primero)
-                ) {
-
-                    observacion = `
-                        ⏸️ <strong>Posible estancamiento.</strong>
-                        ${ejercicio.nombre}
-                        lleva varios registros en
-                        <strong>${primero} reps</strong>.
-                        Frankenstein estará observando tu próxima marca.
-                    `;
-
-                }
-
+            if (mismaMarca) {
+                mensaje = `
+                    ⏸️ <strong>Posible estancamiento en ${nombre}.</strong>
+                    Tus últimos tres registros mantienen las mismas repeticiones
+                    y carga. No significa necesariamente que hayas dejado de progresar.
+                    Revisa descanso, técnica y recuperación antes de cambiar la rutina.
+                `;
+            } else if (
+                anterior &&
+                repsActuales < anterior.reps &&
+                (rirActual === null || rirActual <= 1)
+            ) {
+                mensaje = `
+                    🔎 <strong>Rendimiento más bajo en ${nombre}.</strong>
+                    Bajaste de <strong>${anterior.reps}</strong> a
+                    <strong>${repsActuales} reps</strong> y reportaste poco margen
+                    antes del fallo. Mantén una técnica controlada y considera
+                    recuperar mejor antes de intentar superar tu marca.
+                `;
+            } else if (anterior) {
+                mensaje = `
+                    👀 <strong>Seguimiento de ${nombre}.</strong>
+                    Registraste <strong>${repsActuales} reps</strong>.
+                    Por ahora no hay una señal clara de récord o estancamiento.
+                    Mantén la constancia y compara la próxima sesión.
+                `;
             }
-
         }
 
+        if (mensaje) {
+            observaciones.push(`<div style="margin-bottom:14px;">${mensaje}</div>`);
+        }
     });
 
     container.innerHTML = `
-        <p style="
-            margin-top: 10px;
-            line-height: 1.5;
-        ">
-            ${observacion}
-        </p>
+        <div style="margin-top:10px;line-height:1.6;">
+            ${observaciones.join("") ||
+                "🧟‍♂️ No encontré suficientes datos para analizar esta sesión."}
+        </div>
     `;
-}
-
-async function borrarEntrenamiento(indice) {
+}async function borrarEntrenamiento(indice) {
 
     const confirmar = confirm(
         "¿Seguro que quieres borrar este entrenamiento?"
